@@ -1,0 +1,79 @@
+---
+title: "Data Memo"
+author: "Data Science III (STAT 301-3)"
+date: "Adrian Naranjo"
+output: html_document
+---
+
+
+## Data Sources
+
+*All files can be found on the City of Austin, TX website:* https://data.austintexas.gov/.
+<br>
+<br>
+
+The specific files used are as follows:
+
+#### Annual Crime in 2015
+https://data.austintexas.gov/Public-Safety/Annual-Crime-Dataset-2015/spbg-9v94
+<br>
+
+#### Annual Crime in 2016
+https://data.austintexas.gov/Public-Safety/2016-Annual-Crime-Data/8iue-zpf6
+<br>
+
+#### Housing Market Analysis in 2014
+https://data.austintexas.gov/Building-and-Development/2014-Housing-Market-Analysis-Data-by-Zip-Code/hcnj-rei3
+<br>
+
+#### Electric Vehicle Charging Network
+https://data.austintexas.gov/Utilities-and-City-Services/Electric-Vehicle-Charging-Network/k5hp-eece
+<br>
+
+#### Restaurant Inspection Scores
+https://data.austintexas.gov/Health-and-Community-Services/Restaurant-Inspection-Scores/ecmv-9xxi
+<br>
+
+#### Public Art
+https://data.austintexas.gov/Recreation-and-Culture/City-of-Austin-Public-Art-Collection/uuk6-933w
+<br>
+
+#### Creative Workspaces, Performance Venues, and Galleries
+https://data.austintexas.gov/City-Government/Creative-Workspaces-Performance-Venues-Galleries-M/qxfh-ycp7
+<br>
+
+#### Parks
+https://data.austintexas.gov/Locations-and-Maps/City-of-Austin-Parks/8f2b-a4q5  
+<br>
+
+#### Libraries
+https://data.austintexas.gov/Recreation-and-Culture/Austin-Public-Library-Locations/tc36-hn4j
+<br>
+
+#### Campagin Finance
+https://data.austintexas.gov/City-Government/Campaign-Finance-Data-Report-Detail-Dataset/b2pc-2s8n
+<br>
+
+### Note: other more interesting datasets may be added to the analysis should they appear either useful or merely interesting
+<br>
+
+## Research Question
+
+This project will primarily attempt to answer the question: 'can we predict average housing prices or rent, aggregated by zip code, given various attributes?' Primary variables such as poverty rates, race, and income will be expected to weigh more heavily on the model than others, however there is the hope that other variables, less obviously relevant variables, will contribute to the prediciton (because it would be more fun). That said, the goal is finding the most accurate model for the prediction, so if it turns out that only obvious variables affect housing prices, that is the model which will be proposed. 
+
+Secondary questions may arise and will be related to the prediction of other variables by zip code (e.g. can we predict park size or the median restaurant inspection scores for a given zip code). However, these questions will only be attempted if a satisfactory answer has been produced for the primary question.
+
+## Potential Issues
+
+1. Many issues can arise. First, as always, the data has no guarantees of being accurate. (For example, there has already been an instance found of a nonsensical row and another where the latitude and longitude coordinates appear to map to a location nowhere near Austin, TX.)
+
+2. Cleaning may be an issue, though not likely as each of the files provided look fairly clean and structured, after a first glance. But, this is always a concern. In addition, some datasets best provide information broken out by categorical values while others may provide information best aggregated to the high possible level (i.e. one value). Combining these two cases may be challenging, though the insight may be worthwhile.
+
+3. The datasets and, hence, variables within the datasets selected, may be biased by me as they were selected because 1.) they contained at least a zip code, and 2.) they appeared "interesting". Given that "interesting" datasets may not contain the best predictors, this analysis may produce a model with little accuracy. 
+
+4. It is extremely possible that the granularity provided by zip codes is too high for an accurate prediction of housing prices. Perhaps the granularity of houses on a given block, or somewhere between the granularity of a block and a zip code, would produce much more accurate predictions. 
+
+5. It is guaranteed that the curse of dimensionality will be an issue. Depending on the data set, there are approximately 30-40 Austin zip codes in total. Each dataset contains, very conservatively, 2-3 useful columns. Given there are already 10 datasets, p is already nearly the size of n. 
+
+
+

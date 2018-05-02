@@ -1,0 +1,218 @@
+library(tidyverse)
+library(ggmap)
+library(zipcode)
+
+# Used to extract coordinates for each zip code
+data(zipcode)
+
+# Creates a plot of Austin for use below
+map_of_austin <- get_map(location = c(lon = -97.7431, lat = 30.2672))
+
+###################
+# Import Data 
+# All data can be found at: https://data.austintexas.gov/
+
+
+# These coordinates do not appear to correspond to Austin
+crime_2015_data <- read_csv('data/Annual_Crime_Dataset_2015.csv') %>%
+  mutate(Year = rep(2015, dim(.)[1])
+         ,`GO X Coordinate2` = `GO X Coordinate`/100000
+         ,`GO Y Coordinate2` = `GO Y Coordinate`/100000 * -1) 
+glimpse(crime_2015_data)
+
+
+# These coordinates do not appear to correspond to Austin
+crime_2016_data <- read_csv('data/2016_Annual_Crime_Data.csv') %>%
+  mutate(Year = rep(2016, dim(.)[1])
+         ,`GO X Coordinate2` = `GO X Coordinate`/100000
+         ,`GO Y Coordinate2` = `GO Y Coordinate`/100000 * -1)
+glimpse(crime_2016_data)
+
+
+housing_2014_data <- read_csv('data/2014_Housing_Market_Analysis_Data_by_Zip_Code.csv') %>% 
+  select(-`Homes affordable to people earning less than $50,000`, -`Rentals affordable to people earning less than $25,000`
+         ,-`Rent-restricted units`, -`Housing Choice Voucher holders`, -`Percentage of rental units in poor condition`
+         ,-`Percent change in number of housing units, 2000-2012`, -`Owner units affordable to average retail/service worker`
+         ,-`Rental units affordable to average retail/service worker`, -`Rental units affordable to average artist`
+         ,-`Owner units affordable to average artist`, -`Rental units affordable to average teacher`
+         ,-`Owner units affordable to average teacher`, -`Rental units affordable to average tech worker`
+         ,-`Owner units affordable to average tech worker`, -`Average monthly transportation cost`
+         ,-`Percentage of housing and transportation costs that is transportation-related`) %>% 
+  mutate(`Population below poverty level` = as.double(str_replace(`Population below poverty level`,'%',''))/100
+         ,`Median household income` = as.integer(str_replace(`Median household income`,'\\$',''))
+         ,`Non-White, Non-Hispanic or Latino` = as.double(str_replace(`Non-White, Non-Hispanic or Latino`,'%',''))/100
+         ,`Hispanic or Latino, of any race` = as.double(str_replace(`Hispanic or Latino, of any race`,'%',''))/100
+         ,`Population with disability` = as.double(str_replace(`Population with disability`,'%',''))/100
+         ,Unemployment = as.double(str_replace(Unemployment,'%',''))/100
+         ,`Large households (5+ members)` = as.double(str_replace(`Large households (5+ members)`,'%',''))/100
+         ,`Median rent` = as.integer(str_replace(`Median rent`, '\\$', ''))
+         ,`Median home value` = as.integer(str_replace(`Median home value`, '\\$', ''))
+         ,`Change in percentage of population below poverty, 2000-2012` = as.double(str_replace(`Change in percentage of population below poverty, 2000-2012`,'%',''))/100
+         ,`Change in median rent, 2000-2012` = as.double(str_replace(`Change in median rent, 2000-2012`,'%',''))/100
+         ,`Change in median home value, 2000-2012` = as.double(str_replace(`Change in median home value, 2000-2012`,'%',''))/100
+         ,`Percentage of homes within 1/4-mi of transit stop` = as.double(str_replace(`Percentage of homes within 1/4-mi of transit stop`,'%',''))/100)
+glimpse(housing_2014_data)
+
+
+elec_car_char_data <- read_csv('data/Electric_Vehicle_Charging_Network.csv') 
+glimpse(elec_car_char_data)
+
+
+# read_csv had problems parsing data with a few rows. Not concerned at the moment.
+restaurant_reviews_data <- read_csv('data/Restaurant_Inspection_Scores.csv') 
+problems(restaurant_reviews_data)
+glimpse(restaurant_reviews_data)
+
+
+public_art_data <- read_csv('data/City_of_Austin_Public_Art_Collection.csv') 
+glimpse(public_art_data)
+
+
+art_spaces_data <- read_csv('data/Creative_Workspaces__Performance_Venues__Galleries___Museums.csv') 
+glimpse(art_spaces_data)
+
+
+park_data <- read_csv('data/City_of_Austin_Parks_data.csv') 
+glimpse(park_data)
+
+
+library_data <- read_csv('data/Austin_Public_Library_Locations.csv') %>% 
+  mutate(zip_code = str_extract(Address, 'TX\\s[0-9]+')
+         ,zip_code = as.integer(substring(zip_code, nchar(zip_code)-5, nchar(zip_code)))
+         ,latitude = str_extract(`Latitude / Longitude`, '.+\\,')
+         ,latitude = as.double(substring(latitude, 2, nchar(latitude) - 1))
+         ,longitude = str_extract(`Latitude / Longitude`, '\\,+.+')
+         ,longitude = as.double(substring(longitude, 3, nchar(longitude) - 3)))
+glimpse(library_data)
+
+
+campaign_finance_data <- read_csv('data/Campaign_Finance_Data_-_Report_Detail_Dataset.csv') %>% 
+  mutate(zip_code = substring(Filer_City_State_Zip, nchar(Filer_City_State_Zip)-5, nchar(Filer_City_State_Zip)))
+glimpse(campaign_finance_data)
+
+
+# No zip codes, but does have latitude/longitude coordinates
+traffic_camera_data <- read_csv('data/Traffic_Cameras.csv') %>% 
+  filter(`Camera Status` == "TURNED_ON")
+glimpse(traffic_camera_data)
+
+
+water_consumption_data <- read_csv('data/Austin_Water_-_Residential_Water_Consumption.csv') %>% 
+  mutate(Year = substring(`Year Month`, 0, 4)) %>% 
+  filter(Year != '2044')
+glimpse(water_consumption_data) 
+
+
+###################
+# Aggregation
+
+
+crimes_by_zip2015 <- crime_2015_data %>% 
+  group_by(`GO Location Zip`) %>% 
+  count() %>% 
+  rename(crimes_2015 = n)
+
+
+crimes_by_zip2015B <- crime_2015_data %>% 
+  group_by(`GO Location Zip`, `Highest NIBRS/UCR Offense Description`) %>% 
+  count() %>% 
+  rename(crimes_2015 = n)
+
+
+crimes_by_zip2016 <- crime_2016_data %>% 
+  group_by(`GO Location Zip`) %>%  
+  count() %>% 
+  rename(crimes_2016 = n)
+
+
+crimes_by_zip2016B <- crime_2016_data %>% 
+  group_by(`GO Location Zip`, `Highest NIBRS/UCR Offense Description`) %>% 
+  count() %>% 
+  rename(crimes_2016 = n)
+
+
+car_charges_by_zip <- elec_car_char_data %>% 
+  group_by(`Postal Code`) %>%  
+  count() %>% 
+  rename(charge_stations = n)
+
+
+car_charges_by_zipB <- elec_car_char_data %>% 
+  group_by(`Postal Code`) %>% 
+  count(`Customer Category`) %>% 
+  rename(charge_stations = n)
+
+
+rest_reviews_by_zip <- restaurant_reviews_data %>% 
+  group_by(`Zip Code`) %>% 
+  summarise(total_reviews = n()
+            ,mean_review = mean(Score)
+            ,median_review = median(Score)) 
+
+
+public_art_by_zip <- public_art_data %>% 
+  group_by(`Location Zip Code`) %>% 
+  count() %>% 
+  rename(public_art = n)
+
+
+art_spaces_by_zip <- art_spaces_data %>% 
+  group_by(ZIP) %>%  
+  count() %>% 
+  rename(venues = n)
+
+
+parks_by_zip <- park_data %>% 
+  group_by(ZIP_CODE) %>% 
+  summarise(total_parks = n()
+            ,median_park_acres = median(PARK_ACRES)
+            ,mean_park_acres = mean(PARK_ACRES))
+
+
+libraries_by_zip <- library_data %>% 
+  group_by(zip_code) %>% 
+  count()
+
+
+water_consumption_by_zip <- water_consumption_data %>% 
+  filter(Year == '2017') %>% 
+  group_by(`Postal Code`) %>% 
+  summarise('total_water_consumption' = sum(`Total Gallons`))
+
+
+##################
+# Join
+
+austin_zip_codes <- filter(zipcode, city == 'Austin', state == 'TX') %>%
+  select(zip, latitude, longitude) %>%
+  mutate(zip_code = as.double(zip)) %>% 
+  unique()
+
+# Create a base list of city of Austin zip codes from http://www.city-data.com/zipmaps/Austin-Texas.html
+# austin_zip_codes <- tibble(zip_code = c(78610, 78613, 78617, 78641, 78652, 78653, 78660, 78664, 78681, 78701,
+#                                         78702, 78703, 78704, 78705, 78712, 78717, 78719, 78721, 78722, 78723,
+#                                         78724, 78725, 78726, 78727, 78728, 78729, 78730, 78731, 78732, 78733,
+#                                         78734, 78735, 78736, 78737, 78738, 78739, 78741, 78742, 78744, 78745,
+#                                         78746, 78747, 78748, 78749, 78750, 78751, 78752, 78753, 78754, 78756,
+#                                         78757, 78758, 78759))
+
+dim(austin_zip_codes)
+
+austin_zip_codes <- left_join(austin_zip_codes, crimes_by_zip2015, by = c('zip_code' = 'GO Location Zip'))
+austin_zip_codes <- left_join(austin_zip_codes, crimes_by_zip2016, by = c('zip_code' = 'GO Location Zip'))
+austin_zip_codes <- left_join(austin_zip_codes, car_charges_by_zip, by = c('zip_code' = 'Postal Code'))
+austin_zip_codes <- left_join(austin_zip_codes, rest_reviews_by_zip, by = c('zip_code' = 'Zip Code'))
+austin_zip_codes <- left_join(austin_zip_codes, public_art_by_zip, by = c('zip_code' = 'Location Zip Code'))
+austin_zip_codes <- left_join(austin_zip_codes, art_spaces_by_zip, by = c('zip_code' = 'ZIP'))
+austin_zip_codes <- left_join(austin_zip_codes, housing_2014_data, by = c('zip_code' = 'Zip Code'))
+austin_zip_codes <- left_join(austin_zip_codes, parks_by_zip, by = c('zip_code' = 'ZIP_CODE'))
+austin_zip_codes <- left_join(austin_zip_codes, water_consumption_by_zip, by = c('zip_code' = 'Postal Code'))
+austin_zip_codes <- left_join(austin_zip_codes, libraries_by_zip, by = c('zip_code' = 'zip_code'))
+
+# zipcode_coordinates <- zipcode %>% 
+#   select(zip, latitude, longitude) %>% 
+#   mutate(zip = as.double(zip))
+# 
+# austin_zip_codes <- left_join(austin_zip_codes, zipcode_coordinates, by = c('zip_code' = 'zip'))
+
+dim(austin_zip_codes)
