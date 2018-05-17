@@ -1,0 +1,5 @@
+model,error
+sqrt.mean.testing_data_boost.diff_sq..,771.9261533699644
+sqrt.mean.rf_predictions.diff_sq..,568.3798914732704
+sqrt.mean.ridge_predictions.diff_sq..,407.82657376350807
+sqrt.mean.lasso_predictions.diff_sq..,375.24759634215536

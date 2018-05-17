@@ -1,6 +1,6 @@
 library(tidyverse)
-library(ggmap)
-library(zipcode)
+# library(ggmap)
+# library(zipcode)
 
 
 # Used to extract coordinates for each zip code
@@ -13,30 +13,38 @@ data(zipcode)
 ###################
 # Import Data  - all data can be found at: https://data.austintexas.gov/
 
+# file <- read_file('data/Annual_Crime_2014.csv') 
+
+
+
+# CRIME 2014
+# These coordinates do not appear to correspond to Austin
+crime_2014_data <- read_csv('data/Annual_Crime_2014.csv') %>%
+  mutate(Year = rep(2014, dim(.)[1]))
+glimpse(crime_2014_data)
+
 
 # CRIME 2015
 # These coordinates do not appear to correspond to Austin
 crime_2015_data <- read_csv('data/Annual_Crime_Dataset_2015.csv') %>%
-  mutate(Year = rep(2015, dim(.)[1])
-         ,`GO X Coordinate2` = `GO X Coordinate`/100000
-         ,`GO Y Coordinate2` = `GO Y Coordinate`/100000 * -1) 
+  mutate(Year = rep(2015, dim(.)[1]))
 glimpse(crime_2015_data)
 
 
 # CRIME 2016
 # These coordinates do not appear to correspond to Austin
 crime_2016_data <- read_csv('data/2016_Annual_Crime_Data.csv') %>%
-  mutate(Year = rep(2016, dim(.)[1])
-         ,`GO X Coordinate2` = `GO X Coordinate`/100000
-         ,`GO Y Coordinate2` = `GO Y Coordinate`/100000 * -1)
+  mutate(Year = rep(2016, dim(.)[1]))
 glimpse(crime_2016_data)
 
 
 # HOUSING 2014
 housing_2014_data <- read_csv('data/2014_Housing_Market_Analysis_Data_by_Zip_Code.csv') %>% 
-  select(-`Homes affordable to people earning less than $50,000`, -`Rentals affordable to people earning less than $25,000`
+  select(-`Homes affordable to people earning less than $50,000`
+         , -`Rentals affordable to people earning less than $25,000`
          ,-`Rent-restricted units`, -`Housing Choice Voucher holders`, -`Percentage of rental units in poor condition`
-         ,-`Percent change in number of housing units, 2000-2012`, -`Owner units affordable to average retail/service worker`
+         ,-`Percent change in number of housing units, 2000-2012`
+         , -`Owner units affordable to average retail/service worker`
          ,-`Rental units affordable to average retail/service worker`, -`Rental units affordable to average artist`
          ,-`Owner units affordable to average artist`, -`Rental units affordable to average teacher`
          ,-`Owner units affordable to average teacher`, -`Rental units affordable to average tech worker`
@@ -54,7 +62,8 @@ housing_2014_data <- read_csv('data/2014_Housing_Market_Analysis_Data_by_Zip_Cod
          ,`Change in percentage of population below poverty, 2000-2012` = 
            as.double(str_replace(`Change in percentage of population below poverty, 2000-2012`,'%',''))/100
          ,`Change in median rent, 2000-2012` = as.double(str_replace(`Change in median rent, 2000-2012`,'%',''))/100
-         ,`Change in median home value, 2000-2012` = as.double(str_replace(`Change in median home value, 2000-2012`,'%',''))/100
+         ,`Change in median home value, 2000-2012` = 
+           as.double(str_replace(`Change in median home value, 2000-2012`,'%',''))/100
          ,`Percentage of homes within 1/4-mi of transit stop` = 
            as.double(str_replace(`Percentage of homes within 1/4-mi of transit stop`,'%',''))/100)
 glimpse(housing_2014_data)
@@ -159,6 +168,12 @@ water_consumption_data2 <- water_consumption_data %>%
 # Aggregation
 
 
+crimes_by_zip2014 <- crime_2014_data %>% 
+  group_by(`GO Location Zip`) %>% 
+  count() %>% 
+  rename(crimes_2014 = n)
+
+
 crimes_by_zip2015 <- crime_2015_data %>% 
   group_by(`GO Location Zip`) %>% 
   count() %>% 
@@ -252,6 +267,7 @@ austin_zip_codes <- crimes_by_zip2015 %>%
 
 dim(austin_zip_codes)
 
+austin_zip_codes <- left_join(austin_zip_codes, crimes_by_zip2014, by = c('zip_code' = 'GO Location Zip'))
 austin_zip_codes <- left_join(austin_zip_codes, crimes_by_zip2016, by = c('zip_code' = 'GO Location Zip'))
 austin_zip_codes <- left_join(austin_zip_codes, car_charges_by_zip, by = c('zip_code' = 'Postal Code'))
 austin_zip_codes <- left_join(austin_zip_codes, rest_reviews_by_zip, by = c('zip_code' = 'Zip Code'))

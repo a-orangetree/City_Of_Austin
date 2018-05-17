@@ -1,0 +1,5 @@
+model,error
+Boosted_Tree,1062.7857979177152
+Random_Forest,860.5906363574767
+Ridge_Regression,212.2370572484577
+Lasso,153.8101521885304
