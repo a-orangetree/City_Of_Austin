@@ -163,7 +163,7 @@ min_observations <- list(1, 2, 5, 10, 15)
 terminal_nodes <- list(1, 2, 5, 10, 15)
 number_of_trees <- list(10, 50, 100, 250, 500)
 
-rf_function(number_of_trees, mtries, min_observations, terminal_nodes)
+# rf_function(number_of_trees, mtries, min_observations, terminal_nodes)
 
 rf_grid_search <- read_csv('data/rf_grid_search.csv')
 
@@ -243,7 +243,7 @@ learning_rates <- list(.001, .003, .005, .01, .03, .05, .1)
 list_of_gammas <- list(1, 5, 20, 50, 100)
 max_depths <- list(2, 3, 5, 8, 10)
 
-boosted_func(number_of_rounds, learning_rates, list_of_gammas, max_depths)
+# boosted_func(number_of_rounds, learning_rates, list_of_gammas, max_depths)
       
 boost_accuracies <- read_csv('data/boost_accuracies.csv') %>% 
   filter(rmse != 0) %>% 
@@ -270,16 +270,18 @@ testing_data_boost <- test_data %>%
 
 ######### Combined Accuracies ##################
 
-combined_accuracies <- tibble(Boosted_Tree = sqrt(mean(testing_data_boost$diff_sq))
-                              , Random_Forest = sqrt(mean(rf_predictions$diff_sq))
-                              , Ridge_Regression = sqrt(mean(ridge_predictions$diff_sq))
-                              , Lasso = sqrt(mean(lasso_predictions$diff_sq)))
+# combined_accuracies <- tibble(Boosted_Tree = sqrt(mean(testing_data_boost$diff_sq))
+#                               , Random_Forest = sqrt(mean(rf_predictions$diff_sq))
+#                               , Ridge_Regression = sqrt(mean(ridge_predictions$diff_sq))
+#                               , Lasso = sqrt(mean(lasso_predictions$diff_sq)))
+# 
+# 
+# combined_accuracies_with2015 <- combined_accuracies %>%
+#   gather(key = 'model', value = 'error') %>%
+#   arrange(desc(error))
+# 
+# write_csv(combined_accuracies_with2015, 'data/combined_accuracies_with2015')
 
-
-combined_accuracies_with2015 <- combined_accuracies %>%
-  gather(key = 'model', value = 'error') %>%
-  arrange(desc(error))
-
-write_csv(combined_accuracies_with2015, 'data/combined_accuracies_with2015')
+combined_accuracies_with2015 <- read_csv('data/combined_accuracies_with2015')
 
 kable(combined_accuracies_with2015)

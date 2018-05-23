@@ -1,6 +1,6 @@
 library(tidyverse)
 # library(ggmap)
-# library(zipcode)
+library(zipcode)
 
 
 # Used to extract coordinates for each zip code
@@ -13,9 +13,14 @@ data(zipcode)
 ###################
 # Import Data  - all data can be found at: https://data.austintexas.gov/
 
+# Retrieve crime coordinates
 # file <- read_file('data/Annual_Crime_2014.csv') 
-
-
+# coordinates_x <- file %>% str_match_all('\\d+\\.\\d+,\\s') %>% unlist() %>% 
+# coordinates_y <- file %>% str_match_all(',\\s\\-\\d+\\.\\d+') %>% unlist()
+# 
+# length(coordinates_x)
+# length(coordinates_y)
+# dim(crime_2014_data)
 
 # CRIME 2014
 # These coordinates do not appear to correspond to Austin
