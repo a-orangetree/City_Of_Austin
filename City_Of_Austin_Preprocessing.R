@@ -1,13 +1,9 @@
 library(tidyverse)
-# library(ggmap)
 library(zipcode)
 
 
 # Used to extract coordinates for each zip code
 data(zipcode)
-
-# Creates a plot of Austin for use below
-# map_of_austin <- get_map(location = c(lon = -97.7431, lat = 30.2672))
 
 
 ###################
@@ -254,10 +250,10 @@ water_consumption_by_zip <- water_consumption_data %>%
 ##################
 # Join
 
-# austin_zip_codes <- filter(zipcode, city == 'Austin', state == 'TX') %>%
-#   select(zip, latitude, longitude) %>%
-#   mutate(zip_code = as.double(zip)) %>% 
-#   unique()
+austin_zip_codes_coordinates <- filter(zipcode, city == 'Austin', state == 'TX') %>%
+  select(zip, latitude, longitude) %>%
+  mutate(zip_code = as.integer(zip)) %>%
+  unique()
 
 # Create a base list of city of Austin zip codes from http://www.city-data.com/zipmaps/Austin-Texas.html
 # austin_zip_codes <- tibble(zip_code = c(78610, 78613, 78617, 78641, 78652, 78653, 78660, 78664, 78681, 78701,

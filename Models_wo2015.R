@@ -4,6 +4,8 @@ library(gridExtra)
 library(randomForest)
 library(xgboost)
 library(knitr)
+library(ggthemes)
+library(ggExtra)
 
 
 data_without_NA <- drop_na(austin_zip_codes) %>%
@@ -284,3 +286,31 @@ testing_data_boost <- test_data %>%
 combined_accuracies_wo2015 <- read_csv('data/combined_accuracies_wo2015')
 
 kable(combined_accuracies_wo2015)
+
+
+##############################################
+
+new_names <- c('Boosted Tree', 'Random Forest', 'Ridge Regression', 'Lasso')
+
+combined_accuracies_wo2015 <- combined_accuracies_wo2015 %>% 
+  mutate('Models' = new_names) %>% 
+  rename('Error without 2014/2015 Crimes' = 'error') %>% 
+  select(-model)
+
+combined_tables <- combined_accuracies_wo2015[,c(2, 1)] %>% 
+  left_join(combined_accuracies_with2015, by = c('Models' = 'Models')) %>% 
+  mutate(`Error without 2014/2015 Crimes` = round(`Error without 2014/2015 Crimes`)
+         ,`Error with 2014/2015 Crimes` = round(`Error with 2014/2015 Crimes`))
+
+ggplot(combined_tables) +
+  geom_point(aes(x = `Error with 2014/2015 Crimes`
+                 , y = `Error without 2014/2015 Crimes`
+                 , color = Models
+                 , pch = Models), size = 10)
+
+plot(tableGrob(combined_tables))
+
+
+
+
+

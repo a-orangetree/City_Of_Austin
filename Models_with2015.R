@@ -4,6 +4,7 @@ library(gridExtra)
 library(randomForest)
 library(xgboost)
 library(knitr)
+library(class)
 
 
 data_without_NA <- drop_na(austin_zip_codes) %>%
@@ -118,6 +119,23 @@ lasso_predictions <- test_data %>%
 lasso_accuracy <- tibble(sqrt(mean(lasso_predictions$diff_sq)))
 
 
+###### KNN ############
+
+
+training_predictors <- model.matrix(~ ., data = select(train_data, -crimes_2016))
+testing_predictors <- model.matrix(~ ., data = select(test_data, -crimes_2016))
+training_response <- select(train_data, crimes_2016) %>%  as.matrix()
+
+knn_model <- knn(training_predictors, testing_predictors, training_response, k = 5)
+
+testing_knn <- test_data %>%
+  mutate(rmse = (crimes_2016 - as.integer(knn_model))^2)
+
+knn_accuracy <- tibble(sqrt(mean(testing_knn$rmse)))
+knn_accuracy
+
+# k1 = 1796
+# k3 = 1797
 ###### Random Forest ######
 
 
@@ -282,6 +300,13 @@ testing_data_boost <- test_data %>%
 # 
 # write_csv(combined_accuracies_with2015, 'data/combined_accuracies_with2015')
 
-combined_accuracies_with2015 <- read_csv('data/combined_accuracies_with2015')
+#################################################
+
+new_names <- c('Boosted Tree', 'Random Forest', 'Ridge Regression', 'Lasso')
+
+combined_accuracies_with2015 <- read_csv('data/combined_accuracies_with2015') %>%
+  mutate(Models = new_names) %>% 
+  select(-model) %>% 
+  rename('Error with 2014/2015 Crimes' = 'error')
 
 kable(combined_accuracies_with2015)
