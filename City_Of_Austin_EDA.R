@@ -11,8 +11,6 @@ map_of_austin <- get_map(location = c(lon = -97.7431, lat = 30.2672))
 ######################
 # EDA
 
-glimpse(austin_zip_codes_map)
-
 
 # Lots of NAs, which may indicate that some data sets extend beyond Austin proper
 city_of_austin_data <- austin_zip_codes %>% 
@@ -27,33 +25,33 @@ cor(city_of_austin_data$Median_rent, city_of_austin_data$Median_home_value)
 
 # NUMBER OF PUBLIC ART INSTALLATIONS
 # Two zip codes have more than 60 public art installations
-ggplot(filter(city_of_austin_data, public_art < 60), aes(x = public_art, y = Median_home_value)) +
+ggplot(filter(city_of_austin_data, public_art < 60), aes(x = log(public_art), y = crimes_2016)) +
   geom_point() +
   geom_smooth()
 
 
 # MEAN PARK ACRES
 # Four zip codes have more than 250 acres on average of park space
-ggplot(filter(city_of_austin_data, mean_park_acres < 250), aes(x = mean_park_acres, y = Median_home_value)) +
+ggplot(filter(city_of_austin_data, mean_park_acres < 250), aes(x = log(mean_park_acres), y = crimes_2016)) +
   geom_point() +
   geom_smooth()
 
 
 # MEDIAN PARK ACRES
 # One zip code has more than 950 acres on average of park space
-ggplot(filter(city_of_austin_data, median_park_acres < 950), aes(x = median_park_acres, y = Median_home_value)) +
+ggplot(filter(city_of_austin_data, median_park_acres < 950), aes(x = log(median_park_acres), y = crimes_2016)) +
   geom_point() +
   geom_smooth()
 
 
 # TOTAL NUMBER OF PARKS
-ggplot(city_of_austin_data, aes(x = total_parks, y = Median_home_value)) +
+ggplot(city_of_austin_data, aes(x = log(total_parks), y = crimes_2016)) +
   geom_point() +
   geom_smooth()
 
 
 # % HISPANIC/LATINO
-ggplot(city_of_austin_data, aes(x = Hispanic, y = Median_home_value)) +
+ggplot(city_of_austin_data, aes(x = log(Hispanic), y = crimes_2016)) +
   geom_point(aes(color = Pop_below_poverty_line)) +
   geom_smooth(color = 'red') +
   labs(y = 'Median Home Value', x = '% of Hispanic Population') +
@@ -63,7 +61,7 @@ ggplot(city_of_austin_data, aes(x = Hispanic, y = Median_home_value)) +
 
 
 # MEDIAN INCOME
-ggplot(city_of_austin_data, aes(x = Median_income, y = Median_home_value)) +
+ggplot(city_of_austin_data, aes(x = Median_income, y = crimes_2016)) +
   geom_point() +
   geom_smooth(color = 'yellow') +
   labs(y = 'Median Home Value', x = 'Median Income') +
@@ -88,7 +86,7 @@ ggplot(city_of_austin_data, aes(x = Chg_median_rent, y = Median_home_value)) +
 
 # MAP OF HISPANIC/LATINO
 ggmap(map_of_austin) +
-  geom_point(aes(x = longitude, y = latitude, size = Median_home_value, color = Hispanic)
+  geom_point(aes(x = longitude, y = latitude, size = crimes_2016, color = crimes_2015)
              ,data = city_of_austin_data
              ,alpha = .5
              ,na.rm = TRUE) 
